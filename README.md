@@ -14,8 +14,8 @@ Score is mainly calculated from individual contributions made to the commit. The
 - [Task 4](/function_documentation.md)
 
 ## Team Members
-- Andris Mumtaz Satrio (1313623062)
-- Jason Januardy (1313623035)
-- Muhammad Azzam Azizi (1313623047)
-- Fadlintauzy Wilman Putra (1313623068)
+- Andris Mumtaz Satrio (1313623062) (polystree)
+- Jason Januardy (1313623035) (chthollys)
+- Muhammad Azzam Azizi (1313623047) (nobuww)
+- Fadlintauzy Wilman Putra (1313623068)(Fadlintauzy)
   
