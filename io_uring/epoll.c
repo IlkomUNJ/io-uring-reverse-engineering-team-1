@@ -26,6 +26,10 @@ struct io_epoll_wait {
 	struct epoll_event __user	*events;
 };
 
+/* prepares an epoll control request for io_uring
+ * initializes the io_epoll structure based on data from the submission queue entry.
+ * validates the parameters for the epoll control operation.
+ */
 int io_epoll_ctl_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_epoll *epoll = io_kiocb_to_cmd(req, struct io_epoll);
@@ -48,10 +52,10 @@ int io_epoll_ctl_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
-/**
-* prepare io_epoll reference, then start the eventpoll in non-blocking mode according
-* to the value passed on io_kiocdb
-*/
+/* performs an epoll control operation through io_uring
+ * executes add, modify, or remove operations on the specified epoll instance.
+ * handles nonblocking cases when requested.
+ */
 int io_epoll_ctl(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_epoll *ie = io_kiocb_to_cmd(req, struct io_epoll);
@@ -68,6 +72,10 @@ int io_epoll_ctl(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/* prepares an epoll wait request for io_uring
+ * initializes the io_epoll_wait structure based on data from the submission queue entry.
+ * validates the parameters for the epoll wait operation.
+ */
 int io_epoll_wait_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_epoll_wait *iew = io_kiocb_to_cmd(req, struct io_epoll_wait);
@@ -80,6 +88,10 @@ int io_epoll_wait_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/* performs an epoll wait operation through io_uring
+ * retrieves ready events from an epoll instance in a non-blocking manner.
+ * returns -EAGAIN if no events are ready.
+ */
 int io_epoll_wait(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_epoll_wait *iew = io_kiocb_to_cmd(req, struct io_epoll_wait);
@@ -94,3 +106,4 @@ int io_epoll_wait(struct io_kiocb *req, unsigned int issue_flags)
 	io_req_set_res(req, ret, 0);
 	return IOU_OK;
 }
+
