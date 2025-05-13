@@ -16,6 +16,11 @@
 #include "rsrc.h"
 
 #ifdef CONFIG_PROC_FS
+
+/*
+ * outputs credential information for a given io_uring personality.
+ * includes UIDs, GIDs, supplementary groups, and effective capabilities.
+ */
 static __cold int io_uring_show_cred(struct seq_file *m, unsigned int id,
 		const struct cred *cred)
 {
@@ -47,6 +52,11 @@ static __cold int io_uring_show_cred(struct seq_file *m, unsigned int id,
 }
 
 #ifdef CONFIG_NET_RX_BUSY_POLL
+
+/*
+ * outputs common NAPI tracking information to procfs. includes
+ * busy polling delta time and preference settings for the strategy.
+ */
 static __cold void common_tracking_show_fdinfo(struct io_ring_ctx *ctx,
 					       struct seq_file *m,
 					       const char *tracking_strategy)
@@ -60,6 +70,10 @@ static __cold void common_tracking_show_fdinfo(struct io_ring_ctx *ctx,
 		seq_puts(m, "napi_prefer_busy_poll:\tfalse\n");
 }
 
+/*
+ * displays the current NAPI tracking mode and configuration. shows
+ * whether tracking is disabled, dynamic, or static, with parameters.
+ */
 static __cold void napi_show_fdinfo(struct io_ring_ctx *ctx,
 				    struct seq_file *m)
 {
@@ -87,8 +101,9 @@ static inline void napi_show_fdinfo(struct io_ring_ctx *ctx,
 #endif
 
 /*
- * Caller holds a reference to the file already, we don't need to do
- * anything else to get an extra reference.
+ * provides detailed debugging information about an io_uring instance.
+ * outputs submission/completion queue states, registered resources,
+ * and other context-specific details to procfs.
  */
 __cold void io_uring_show_fdinfo(struct seq_file *m, struct file *file)
 {
@@ -123,11 +138,11 @@ __cold void io_uring_show_fdinfo(struct seq_file *m, struct file *file)
 	seq_printf(m, "SqMask:\t0x%x\n", sq_mask);
 	seq_printf(m, "SqHead:\t%u\n", sq_head);
 	seq_printf(m, "SqTail:\t%u\n", sq_tail);
-	seq_printf(m, "CachedSqHead:\t%u\n", ctx->cached_sq_head);
+	seq_printf(m, "CachedSqHead:\t%u\n", data_race(ctx->cached_sq_head));
 	seq_printf(m, "CqMask:\t0x%x\n", cq_mask);
 	seq_printf(m, "CqHead:\t%u\n", cq_head);
 	seq_printf(m, "CqTail:\t%u\n", cq_tail);
-	seq_printf(m, "CachedCqTail:\t%u\n", ctx->cached_cq_tail);
+	seq_printf(m, "CachedCqTail:\t%u\n", data_race(ctx->cached_cq_tail));
 	seq_printf(m, "SQEs:\t%u\n", sq_tail - sq_head);
 	sq_entries = min(sq_tail - sq_head, ctx->sq_entries);
 	for (i = 0; i < sq_entries; i++) {
@@ -263,3 +278,4 @@ __cold void io_uring_show_fdinfo(struct seq_file *m, struct file *file)
 	napi_show_fdinfo(ctx, m);
 }
 #endif
+

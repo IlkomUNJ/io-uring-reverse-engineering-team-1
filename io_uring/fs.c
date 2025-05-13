@@ -47,6 +47,10 @@ struct io_link {
 	int				flags;
 };
 
+/* 
+ * prepares the rename operation by parsing user inputs and validating arguments.
+ * forces asynchronous execution since filesystem operations can block.
+ */
 int io_renameat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_rename *ren = io_kiocb_to_cmd(req, struct io_rename);
@@ -78,6 +82,10 @@ int io_renameat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/* 
+ * executes the rename operation using the prepared context.
+ * sets the result of the operation in the request structure.
+ */
 int io_renameat(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_rename *ren = io_kiocb_to_cmd(req, struct io_rename);
@@ -93,6 +101,10 @@ int io_renameat(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/* 
+ * cleans up resources allocated during the rename operation.
+ * releases memory for old and new paths.
+ */
 void io_renameat_cleanup(struct io_kiocb *req)
 {
 	struct io_rename *ren = io_kiocb_to_cmd(req, struct io_rename);
@@ -101,6 +113,10 @@ void io_renameat_cleanup(struct io_kiocb *req)
 	putname(ren->newpath);
 }
 
+/* 
+ * prepares the unlink operation by validating arguments and extracting the target path.
+ * ensures asynchronous execution to handle potential blocking.
+ */
 int io_unlinkat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_unlink *un = io_kiocb_to_cmd(req, struct io_unlink);
@@ -127,6 +143,10 @@ int io_unlinkat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/* 
+ * executes the unlink or rmdir operation based on the provided flags.
+ * sets the result of the operation in the request structure.
+ */
 int io_unlinkat(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_unlink *un = io_kiocb_to_cmd(req, struct io_unlink);
@@ -144,6 +164,10 @@ int io_unlinkat(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/* 
+ * cleans up resources allocated during the unlink operation.
+ * frees the memory associated with the target filename.
+ */
 void io_unlinkat_cleanup(struct io_kiocb *req)
 {
 	struct io_unlink *ul = io_kiocb_to_cmd(req, struct io_unlink);
@@ -151,6 +175,10 @@ void io_unlinkat_cleanup(struct io_kiocb *req)
 	putname(ul->filename);
 }
 
+/* 
+ * prepares the mkdir operation by extracting and validating user inputs.
+ * sets up the request for asynchronous execution.
+ */
 int io_mkdirat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_mkdir *mkd = io_kiocb_to_cmd(req, struct io_mkdir);
@@ -174,6 +202,10 @@ int io_mkdirat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/* 
+ * executes the mkdir operation to create a new directory.
+ * stores the result of the operation in the request structure.
+ */
 int io_mkdirat(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_mkdir *mkd = io_kiocb_to_cmd(req, struct io_mkdir);
@@ -188,6 +220,10 @@ int io_mkdirat(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/* 
+ * cleans up resources allocated during the mkdir operation.
+ * releases the memory for the directory name.
+ */
 void io_mkdirat_cleanup(struct io_kiocb *req)
 {
 	struct io_mkdir *md = io_kiocb_to_cmd(req, struct io_mkdir);
@@ -195,6 +231,10 @@ void io_mkdirat_cleanup(struct io_kiocb *req)
 	putname(md->filename);
 }
 
+/* 
+ * prepares a symlink creation by validating inputs and extracting paths.
+ * ensures the request is set up for asynchronous execution.
+ */
 int io_symlinkat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_link *sl = io_kiocb_to_cmd(req, struct io_link);
@@ -224,6 +264,10 @@ int io_symlinkat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/* 
+ * creates a symlink using the prepared context.
+ * sets the result of the operation in the request structure.
+ */
 int io_symlinkat(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_link *sl = io_kiocb_to_cmd(req, struct io_link);
@@ -238,6 +282,10 @@ int io_symlinkat(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/* 
+ * prepares a hardlink creation by validating inputs and extracting paths.
+ * sets up the request for asynchronous execution.
+ */
 int io_linkat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_link *lnk = io_kiocb_to_cmd(req, struct io_link);
@@ -269,6 +317,10 @@ int io_linkat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/* 
+ * executes the creation of a hardlink using the prepared context.
+ * updates the result of the operation in the request structure.
+ */
 int io_linkat(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_link *lnk = io_kiocb_to_cmd(req, struct io_link);
@@ -284,6 +336,10 @@ int io_linkat(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/* 
+ * cleans up resources allocated during link or symlink operations.
+ * releases memory for the old and new paths.
+ */
 void io_link_cleanup(struct io_kiocb *req)
 {
 	struct io_link *sl = io_kiocb_to_cmd(req, struct io_link);
@@ -291,3 +347,4 @@ void io_link_cleanup(struct io_kiocb *req)
 	putname(sl->oldpath);
 	putname(sl->newpath);
 }
+
